@@ -86,9 +86,11 @@ Widget visitorCard(
                     ),
                   ],
                 ),
-                RaisedButton(
-                  color: Colors.green,
-                  textColor: Colors.white,
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                  ),
                   child: Text("Mark As Entered"),
                   onPressed: () {},
                 ),

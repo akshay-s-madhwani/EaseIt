@@ -1,7 +1,7 @@
 import 'package:ease_it/firebase/database.dart';
 import 'package:ease_it/utility/display/loading.dart';
 import 'package:flutter/material.dart';
-import 'package:email_auth/email_auth.dart';
+import 'package:email_auth/email_auth.dart' show EmailAuth;
 import 'package:otp_text_field/otp_field.dart';
 import 'package:otp_text_field/style.dart';
 import 'package:ease_it/utility/display/count_down_timer.dart';
@@ -38,7 +38,8 @@ class _OtpScreenState extends State<OtpScreen> {
       Navigator.pop(context, false);
       return;
     }
-    bool result = await emailAuth.sendOtp(recipientMail: widget.emailId);
+
+    bool result = await emailAuth.sendOtp(recipientMail: emailId);
     resendTimes += 1;
     print(resendTimes);
   }
@@ -47,10 +48,7 @@ class _OtpScreenState extends State<OtpScreen> {
     return emailAuth.validateOtp(recipientMail: emailId, userOtp: pin);
   }
 
-  var remoteServerConfiguration = {
-  "server": "https://ease-it-email-server.herokuapp.com",
-  "serverKey": "FRd1iB"
-};
+
 
   @override
   void initState() {
@@ -59,6 +57,11 @@ class _OtpScreenState extends State<OtpScreen> {
       isLoading = true;
     });
     emailAuth = EmailAuth(sessionName: "Ease IT App");
+    var remoteServerConfiguration = {
+      "server": "https://flutter-email-auth2.onrender.com",
+      "serverKey": "7oarZv"
+    };
+
     emailAuth.config(remoteServerConfiguration);
     setState(() {
       isLoading = false;

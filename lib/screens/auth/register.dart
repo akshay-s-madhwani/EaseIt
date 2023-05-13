@@ -69,9 +69,9 @@ class _RegisterPageState extends State<RegisterPage> {
     flatVar.setAllUpdateFunctions = [];
 
     //get society info
-    Map<dynamic, dynamic> tempSnapData =
+    Map<dynamic , dynamic> tempSnapData =
         await Database().getSocietyInfo(societyValue);
-    //print("The data: $tempSnapData");
+    print("The data: $tempSnapData");
 
     //set structure
     //print("Setting the structure to incoming data");
@@ -533,14 +533,15 @@ class _RegisterPageState extends State<RegisterPage> {
                               return;
                             }
                             print("Am I here");
-                            bool authResult = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => OtpScreen(
-                                  emailId: emailController.text,
-                                ),
-                              ),
-                            );
+                            bool authResult = true;
+                            // await Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //     builder: (context) => OtpScreen(
+                            //       emailId: emailController.text,
+                            //     ),
+                            //   ),
+                            // );
                             if (authResult) {
                               // setState(() {
                               //   loading = false;

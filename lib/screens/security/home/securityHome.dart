@@ -5,7 +5,8 @@ import 'package:ease_it/utility/acknowledgement/alert.dart';
 import 'package:ease_it/utility/variables/globals.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:barcode_scan2/barcode_scan2.dart';
+import 'package:qr_code_scanner/qr_code_scanner.dart';
+
 
 class SecurityHome extends StatefulWidget {
   @override
@@ -14,6 +15,7 @@ class SecurityHome extends StatefulWidget {
 
 class _SecurityHomeState extends State<SecurityHome> {
   Globals g = Globals();
+  
   TextEditingController _codeController = TextEditingController();
 
   void onClick() {
@@ -85,6 +87,7 @@ class _SecurityHomeState extends State<SecurityHome> {
                       style:
                           GoogleFonts.urbanist(fontSize: 30, letterSpacing: 2),
                     ),
+                    
             ),
           ),
           Expanded(
@@ -158,80 +161,49 @@ class _SecurityHomeState extends State<SecurityHome> {
                 SizedBox(height: 20),
                 Container(
                   width: double.infinity,
-                  child: TextButton(
-                    style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all<Color>(Color(0xff037DD6)),
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(22),
-                        ),
+                  child: Stack(
+                    children: [
+                      QRView(
+                        key: GlobalKey(),
+                        onQRViewCreated: (QRViewController controller) {
+                          controller.scannedDataStream.listen((Barcode result) async {
+                            await controller.pauseCamera();
+                            await verifyVisitor(result.code);
+                          });
+                        },
                       ),
-                    ),
-                    onPressed: () async {
-                      verifyVisitor(_codeController.text);
-                    },
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 5.0),
-                      child: Text(
-                        'Verify Visitor',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 15),
-                Container(
-                  width: double.infinity,
-                  child: TextButton(
-                    style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all<Color>(Color(0xffd7373f)),
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(22),
-                        ),
-                      ),
-                    ),
-                    onPressed: () async {
-                      // Platform messages may fail, so we use a try/catch PlatformException.
-                      try {
-                        var result = await BarcodeScanner.scan(
-                            options: ScanOptions(
-                                restrictFormat: [BarcodeFormat.qr]));
-                        await verifyVisitor(result.rawContent.toString());
-                      } catch (e) {
-                        print("-------------------EXCEPTION----------------");
-                        print(e.toString());
-                      }
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.qr_code_scanner_outlined,
-                          color: Colors.white,
-                        ),
-                        SizedBox(width: 10),
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 5.0),
-                          child: Text(
-                            'Scan QR Code',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                      Positioned(
+                        top: 10,
+                        right: 10,
+                        child: ElevatedButton(
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(Color(0xffd7373f)),
+                            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(22),
+                              ),
                             ),
                           ),
-                        )
-                      ],
-                    ),
+                          onPressed: () {
+                            // Close the scanner or perform any other actions
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 5.0),
+                            child: Text(
+                              'Close Scanner',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 )
+
               ],
             ),
           )

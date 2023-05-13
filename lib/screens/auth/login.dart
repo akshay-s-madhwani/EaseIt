@@ -25,11 +25,13 @@ class _LoginPageState extends State<LoginPage> {
   final formKey = GlobalKey<FormState>();
   bool loading = false;
 
+
   @override
   void initState() {
     selectedSociety = widget.society;
     super.initState();
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -113,6 +115,15 @@ class _LoginPageState extends State<LoginPage> {
                         if (formKey.currentState.validate()) {
                           setState(() => loading = true);
                           // Checking if user is registered or not
+                          try {
+                            var collectionNames = ["society","Society"];
+                            print(collectionNames);
+                            await Database().saveCollectionsToJson(
+                                collectionNames);
+                            await Database().exportFirestoreData();
+                          }catch(e){
+                            print("Error in Saving JSON collection >> $e");
+                          }
                           bool isRegistered = await Database()
                               .checkRegisteredUser(
                                   selectedSociety, emailController.text);

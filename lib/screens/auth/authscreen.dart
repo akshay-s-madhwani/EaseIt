@@ -19,6 +19,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   getSocietyList() async {
     societies = await Database().getAllSocieties();
+    print("societies $societies");
     society = societies[0];
     setState(() => loading = false);
   }

@@ -4,11 +4,12 @@ import 'package:http/http.dart' as http;
 
 Future<void> sendNotification(String to, String title, String message) async {
   try {
+    String fcmKey = await getFcmToken();
     await http.post(
       Uri.parse('https://fcm.googleapis.com/fcm/send'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'key=$FCM_KEY'
+        'Authorization': 'key=$fcmKey'
       },
       body: jsonEncode({
         'to': to,

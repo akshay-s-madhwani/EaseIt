@@ -1,5 +1,8 @@
 // Cloud Firestore functions
+import 'dart:convert';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:ease_it/flask/api.dart';
 import 'package:ease_it/utility/variables/globals.dart';
 import 'package:ease_it/utility/acknowledgement/notification.dart';
@@ -11,13 +14,76 @@ class Database {
   Globals g = Globals();
   final _firestore = FirebaseFirestore.instance;
 
+
+  Future<void> saveCollectionsToJson(List<String> collectionNames) async {
+    try {
+      Map<String, List<Map<String, dynamic>>> allCollections = {};
+
+      for (String collectionName in collectionNames) {
+        QuerySnapshot querySnapshot = await
+            _firestore
+            .collection(collectionName).get();
+        final collectionData = querySnapshot.docs.map((doc) {
+          Map<String, dynamic> data = doc.data();
+          data['id'] = doc.id; // Add document ID to the data
+          return data;
+        }).toList();
+
+        allCollections[collectionName] = collectionData;
+      }
+      QuerySnapshot snapshot = await _firestore
+          .collection("Apex Societies")
+          .doc('users')
+          .collection('User')
+          .get();
+      print(snapshot);
+      print(allCollections);
+
+      // Save to JSON file
+      final jsonContent = json.encode(allCollections);
+      // final directory = await getApplicationDocumentsDirectory();
+      // final jsonFile = File('${directory.path}/collections.json');
+      // await jsonFile.writeAsString(jsonContent);
+    }catch(e){
+      print(e);
+    }
+  }
+
+  Future<void> exportFirestoreData() async {
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
+    final Map<String, dynamic> exportedData = {};
+
+    // Get all collection references
+    dynamic collections = ["Society","users","society"];
+    for (CollectionReference collectionRef in collections) {
+
+        final String collectionId = collectionRef.id;
+        exportedData[collectionId] = {};
+
+        // Get all documents in the collection
+        final QuerySnapshot querySnapshot = await collectionRef.get();
+        for (DocumentSnapshot docSnapshot in querySnapshot.docs) {
+          exportedData[collectionId][docSnapshot.id] = docSnapshot.data();
+
+      }
+    }
+
+    // Convert the exported data to JSON format
+    // final String exportedJson = jsonEncode(exportedData);
+    print(exportedData);
+  }
+
   Future<List<String>> getAllSocieties() async {
     List<String> societies = [];
+
     await _firestore.collection('Society').get().then((value) {
-      value.docs.forEach((doc) {
+
+      value.docs.forEach( (doc){
         societies.add(doc.id);
       });
     });
+
+
     return societies;
   }
 
@@ -25,6 +91,8 @@ class Database {
     try {
       DocumentSnapshot snap =
           await _firestore.collection('Society').doc(societyName).get();
+      print(snap.data());
+
       return snap.data();
     } catch (e) {
       e.toString();
@@ -34,6 +102,11 @@ class Database {
 
   Future<bool> checkRegisteredUser(String society, String email) async {
     try {
+      DocumentSnapshot printable = await _firestore
+          .collection(society)
+          .doc('users')
+          .get();
+      print(printable.data());
       QuerySnapshot snapshot = await _firestore
           .collection(society)
           .doc('users')
@@ -85,6 +158,7 @@ class Database {
           'token': token,
         });
       } else {
+
         await _firestore
             .collection(society)
             .doc('users')
